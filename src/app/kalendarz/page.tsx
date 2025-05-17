@@ -1,8 +1,11 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CalendarDays, PlusCircle, Users, Briefcase, FerrisWheel } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar"; // Assuming this is the shadcn calendar
 import { Badge } from "@/components/ui/badge";
+import * as React from "react"; // Ensure React is imported for useState
 
 const events = [
   { date: new Date(2024, 5, 17), title: "Wycieczka do ZOO", type: "Wycieczka", group: "Wszystkie grupy" },
@@ -130,6 +133,3 @@ export default function KalendarzPage() {
     </div>
   );
 }
-
-// Minimal React import for useState
-import * as React from "react";
