@@ -1,20 +1,82 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PackageSearch, AlertTriangle, PlusCircle, History } from "lucide-react";
+import { PackageSearch, AlertTriangle, PlusCircle, History, ShoppingCart, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Image from "next/image";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function MagazynPage() {
-  const items = [
-    { id: "1", name: "Papier A4", quantity: 5, unit: "ryz", minLevel: 2, status: "OK" },
-    { id: "2", name: "Kredki świecowe", quantity: 10, unit: "opak.", minLevel: 5, status: "OK" },
-    { id: "3", name: "Płyn do dezynfekcji", quantity: 1, unit: "litr", minLevel: 2, status: "Niski stan" },
-    { id: "4", name: "Mydło w płynie", quantity: 3, unit: "opak.", minLevel: 3, status: "OK" },
-    { id: "5", name: "Ręczniki papierowe", quantity: 2, unit: "rolki", minLevel: 5, status: "Niski stan" },
+  const gospodarczyItems = [
+    { id: "g1", name: "Papier A4", quantity: 5, unit: "ryz", minLevel: 2, status: "OK", category: "Gospodarczy" },
+    { id: "g2", name: "Kredki świecowe", quantity: 10, unit: "opak.", minLevel: 5, status: "OK", category: "Gospodarczy" },
+    { id: "g3", name: "Płyn do dezynfekcji", quantity: 1, unit: "litr", minLevel: 2, status: "Niski stan", category: "Gospodarczy" },
+    { id: "g4", name: "Mydło w płynie", quantity: 3, unit: "opak.", minLevel: 3, status: "OK", category: "Gospodarczy" },
+    { id: "g5", name: "Ręczniki papierowe", quantity: 2, unit: "rolki", minLevel: 5, status: "Niski stan", category: "Gospodarczy" },
   ];
 
-  const lowStockItems = items.filter(item => item.status === "Niski stan");
+  const zywnosciowyItems = [
+    { id: "z1", name: "Mąka pszenna", quantity: 10, unit: "kg", minLevel: 5, status: "OK", category: "Żywnościowy" },
+    { id: "z2", name: "Cukier", quantity: 3, unit: "kg", minLevel: 5, status: "Niski stan", category: "Żywnościowy" },
+    { id: "z3", name: "Olej rzepakowy", quantity: 5, unit: "litr", minLevel: 2, status: "OK", category: "Żywnościowy" },
+    { id: "z4", name: "Ryż biały", quantity: 2, unit: "kg", minLevel: 4, status: "Niski stan", category: "Żywnościowy" },
+    { id: "z5", name: "Makaron świderki", quantity: 6, unit: "opak.", minLevel: 3, status: "OK", category: "Żywnościowy" },
+  ];
+
+  const allItems = [...gospodarczyItems, ...zywnosciowyItems];
+  const lowStockItems = allItems.filter(item => item.status === "Niski stan");
+
+  const renderItemsTable = (items: typeof gospodarczyItems | typeof zywnosciowyItems, categoryName: string) => (
+    <Card>
+      <CardHeader>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+          <CardTitle>Stan magazynowy - {categoryName}</CardTitle>
+          <div className="w-full md:w-1/3">
+            <Input type="search" placeholder={`Szukaj w ${categoryName.toLowerCase()}...`} />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nazwa artykułu</TableHead>
+              <TableHead className="text-right">Ilość</TableHead>
+              <TableHead>Jednostka</TableHead>
+              <TableHead className="text-right">Poziom minimalny</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Akcje</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={item.id} className={item.status === "Niski stan" ? "bg-destructive/5 hover:bg-destructive/10" : ""}>
+                <TableCell className="font-medium">{item.name}</TableCell>
+                <TableCell className="text-right">{item.quantity}</TableCell>
+                <TableCell>{item.unit}</TableCell>
+                <TableCell className="text-right">{item.minLevel}</TableCell>
+                <TableCell>
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    item.status === "Niski stan"
+                      ? "bg-destructive/20 text-destructive-foreground border border-destructive"
+                      : "bg-green-500/20 text-green-700 border border-green-500"
+                  }`}>
+                    {item.status}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm">Edytuj</Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive">Usuń</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+
 
   return (
     <div className="space-y-8">
@@ -45,7 +107,7 @@ export default function MagazynPage() {
             <ul className="list-disc pl-5 space-y-1 text-sm">
               {lowStockItems.map(item => (
                 <li key={item.id}>
-                  <strong>{item.name}:</strong> Aktualnie {item.quantity} {item.unit} (minimum {item.minLevel} {item.unit})
+                  <strong>{item.name} ({item.category}):</strong> Aktualnie {item.quantity} {item.unit} (minimum {item.minLevel} {item.unit})
                 </li>
               ))}
             </ul>
@@ -53,53 +115,18 @@ export default function MagazynPage() {
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-            <CardTitle>Aktualny stan magazynowy</CardTitle>
-            <div className="w-full md:w-1/3">
-              <Input type="search" placeholder="Szukaj artykułu..." />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nazwa artykułu</TableHead>
-                <TableHead className="text-right">Ilość</TableHead>
-                <TableHead>Jednostka</TableHead>
-                <TableHead className="text-right">Poziom minimalny</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item) => (
-                <TableRow key={item.id} className={item.status === "Niski stan" ? "bg-destructive/5 hover:bg-destructive/10" : ""}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell className="text-right">{item.quantity}</TableCell>
-                  <TableCell>{item.unit}</TableCell>
-                  <TableCell className="text-right">{item.minLevel}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      item.status === "Niski stan"
-                        ? "bg-destructive/20 text-destructive-foreground border border-destructive"
-                        : "bg-green-500/20 text-green-700 border border-green-500"
-                    }`}>
-                      {item.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">Edytuj</Button>
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive-foreground hover:bg-destructive">Usuń</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="gospodarczy" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="gospodarczy" className="flex items-center gap-2"><Home className="h-4 w-4" /> Artykuły Gospodarcze</TabsTrigger>
+          <TabsTrigger value="zywnosciowy" className="flex items-center gap-2"><ShoppingCart className="h-4 w-4" /> Artykuły Żywnościowe</TabsTrigger>
+        </TabsList>
+        <TabsContent value="gospodarczy" className="mt-6">
+          {renderItemsTable(gospodarczyItems, "Artykuły Gospodarcze")}
+        </TabsContent>
+        <TabsContent value="zywnosciowy" className="mt-6">
+          {renderItemsTable(zywnosciowyItems, "Artykuły Żywnościowe")}
+        </TabsContent>
+      </Tabs>
       
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
