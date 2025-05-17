@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const payments = [
   { id: "INV001", parent: "Anna Kowalska", amount: 350, currency: "PLN",dueDate: "2024-06-10", status: "Zapłacone", type: "Czesne" },
