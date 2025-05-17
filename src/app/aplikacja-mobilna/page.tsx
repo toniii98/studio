@@ -4,6 +4,7 @@ import { Smartphone, Download, Bell, MessageSquare, Users, CreditCard, CalendarD
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge"; // Added import
 
 export default function AplikacjaMobilnaPage() {
   return (
@@ -157,5 +158,3 @@ export default function AplikacjaMobilnaPage() {
     </div>
   );
 }
-
-    
