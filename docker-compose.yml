@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000" # Mapuje port 3000 kontenera na port 3000 Twojego komputera
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      # Dodaj tutaj inne zmienne środowiskowe potrzebne dla aplikacji
+      # Np. klucze API dla Clerk/Auth.js, itp.
+      # CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      # NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+    volumes:
+      - .:/app # Montuje bieżący katalog projektu do /app w kontenerze (dla developmentu)
+      - /app/node_modules # Zapobiega nadpisywaniu node_modules z hosta
+      - /app/.next # Zapobiega nadpisywaniu .next z hosta
+    # Dla developmentu można zmienić polecenie, aby Next.js działał w trybie dev z hot-reloading
+    # command: pnpm dev
+    # Jednak Dockerfile jest przygotowany pod `standalone` output, co jest lepsze dla produkcji
+    # Aby używać `pnpm dev` z volumes, Dockerfile musiałby być nieco inny (prostszy, bez etapu budowania).
+    # Na razie zostawmy tak, aby mieć spójność z produkcyjnym podejściem.
+    # Możemy później dodać osobny docker-compose.dev.yml dla trybu deweloperskiego.
+
+  db:
+    image: postgres:15-alpine # Użyj oficjalnego obrazu PostgreSQL 15
+    ports:
+      - "5432:5432" # Mapuje port 5432 kontenera na port 5432 Twojego komputera (ostrożnie, jeśli masz lokalnie Postgresa)
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
+      POSTGRES_DB: ${POSTGRES_DB:-edukids_manager}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Utrwala dane bazy danych
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-edukids_manager}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  maildev:
+    image: maildev/maildev
+    ports:
+      - "1080:1080" # Interfejs webowy MailDev
+      - "1025:1025" # Port SMTP MailDev
+    logging:
+      driver: "none" # Wyłącza logowanie dla MailDev, żeby nie zaśmiecać konsoli
+
+volumes:
+  postgres_data: # Definiuje nazwany wolumen dla danych PostgreSQL
